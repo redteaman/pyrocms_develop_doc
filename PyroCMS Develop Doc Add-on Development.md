@@ -1,6 +1,6 @@
 # pyrocms_develop_doc
 
-##Add-on Development
+## Add-on Development
 
 - Developing Plugins
 	+ Methods
@@ -13,15 +13,14 @@
 	+ Sample Module
 
 ### Developing Plugins 開發 Plug-in
+
 PyroCMS 其中之一的核心概念為 tags。如果你已經熟悉了 PyroCMS，那麼你已經確實地看過它們了。
 這裡有一個返回當前 URL 的簡單的 tag 的範例：
-	
-	{{ url:current }}
-
+```{{ url:current }}```
 這裡程式背後的 tags 被稱為 plugin。Plugins 是特別的 PHP 檔案，它的功能被透過 PyroCMS tags 被呼叫，
 並且可以像收集 tag 元素的方式來做事情。它們可以簡單的撰寫並結合了複雜的功能，整潔有序的整合進 PyroCMS 佈局。
 
-### Modular vs Standalone Plugins 模組化 vs 自動安裝 Plugins
+#### Modular vs Standalone Plugins 模組化 vs 自動安裝 Plugins
 僅管它們在結構上是相同的，一個 plugin 可以是一個獨立的檔案，
 也可以是一個較大的 Module 裡的 plugin.php 檔案。
 Module 內的 Plugin 可以輔助你進行一些事情在你建立的客製化的 Module上，
@@ -105,7 +104,7 @@ class Plugin_Session extends Plugin
 * 每個 tag 功能可以直接對應一個 class 功能
 * 每個 function 都有 return，而不是 echo
 
-### Getting Plugin Tag Attributes 取得 Plugin Tag 屬性
+#### Getting Plugin Tag Attributes 取得 Plugin Tag 屬性
 讓 tags 真的強大是它們可以設定屬性，屬性讓你基於輸入資料來自由的編輯 tag 輸出。
 例如：
 
@@ -127,7 +126,7 @@ $this->attribute('name', 'a default value');
 
 如果沒有指定值， $this-> attribute 將會使用這個預設值
 
-### Tag Pairs tag 配對
+#### Tag Pairs tag 配對
 Tags 並不總是只有一行 return 簡單的一個字串。
 Tags 也可以是成對的，這意味著它們之間有一個 opening 和 closing tag 和其內容。
 Plugin 有某些特性用來建立它們能夠簡單的控制的 tag pairs
@@ -198,7 +197,7 @@ return array(
 {{ /blog:posts }}
 ```
 
-### Tag Pair Raw Content Tag Pair 原始內容
+#### Tag Pair Raw Content Tag Pair 原始內容
 你可以透過你的 plugin file 呼叫 plugin 裡的 tags 來取得及使用完整的內容。
 
 ```
@@ -212,3 +211,27 @@ $parser = new Lex_Parser();
 $parser->scope_glue(':');
 return $parser->parse($this->content(), $data = array(), array($this->parser, 'parser_callback'));
 ```
+
+
+### Plugin Methods ###
+
+當你建立了一個 plugin，你必須增加一些有用的 methods 到 plugin class 裡。
+你可以使用這些常見的東西，像是取得 tags 的 attributes 或 content、解析你的屬性容許呈現在動態內容、載入主題或 Module Views上…等等。
+
+#### Core Methods
+這裡所有的都是 Plugins 中所使用的基本 methods。因為你的 plugins 會繼承這個 class，所以要小心不要覆蓋到任何這裡的 functions。
+
+##### content()
+這個函式將回傳 tag pair 間的內容。
+這只有在使用 tag pair 時以及使用單一 tag 回傳 empty 時被使用。
+
+###### Example
+```
+{{ navigation:links }}
+
+{{ title }}
+
+{{ /navigation:links }}
+```
+
+#### attribute($param, $default = null)
