@@ -109,7 +109,7 @@ $this->CI->load->library('Typography');
 public $custom_parameters = array('max_length', 'my_custom_one'); 
 ```
 
-#### Preset Field Parameters
+#### Preset Field Parameters 預設參數
 
 |Parameter|Description|
 |:------:|:-----|
@@ -117,6 +117,106 @@ public $custom_parameters = array('max_length', 'my_custom_one');
 |default_value	Collects data on the default value of a field. This is only a simple text input, so if you need a special default input, you should create your own.|
 
 #### Creating Custom Field Parameters
+如果你使用自定參數在你的 Field type，你需要把你的 Fields 的名稱放在 language 檔案裡。
+可以簡單的使用參數的 slugs 就像 language slugs 一樣。
+它們將會被自動啟用。
+在你的 Field type 裡:
+```php
+public $custom_parameters = array('choice_data', 'choice_type');
+```
+在你的 Language File 裡:
+```php
+$lang['streams:choice.choice_data'] = 'Choice Data';
+$lang['streams:choice.choice_type'] = 'Choice Type';
+```
+
+#### Validation 驗證
+驗證使用了一些 PyroCMS field types 形式。
+* Assignment-added validation 指配新增驗證
+  - 這是必須並且獨特，並且由 field 決定分配的模式。
+* Standard field type validation 標準 field type 驗證
+  - 這在實際的 field type 是標準的驗證規則(見下文)。
+* Custom field type validation 客製化 field type 驗證
+  - 這是 valiation() 函式裡的客製驗證功能(見下文)。
+
+有了這三種方式去整合驗證，你幾乎可以擁有所以讓你去驗證的所有工具。
+
+##### Standard Field Type Validation
+標準 field type 驗證是新增在一個名為 __extra_validation__ 的類別變數
+```php
+public $extra_validation = 'numeric|integer'; 
+```
+所有 CodeIgniter 的 Form Validation 規則都可以在這裡使用，並且用 __|__ 字元區分。
+
+##### Custom Field Type Validation 客製化 Field Type 驗證
+有時候，標準驗證規則不應付你的輸入的內容，你需要一些客製化的驗證的邏輯。
+增加一些客製化的驗證邏輯只要在一個你的 field type 裡公開的驗證函式新增就可以了。
+裡面一共有三個參數:
+
+|Parameter|Description|
+|:------:|:-----|
+|value|The value submitted to the form for your field.|
+|mode|Either 'new' or 'edit', depending on if the form is editing an entry or creating a new one.|
+|field|The field instance object.|
+
+如果資料驗證失敗，你可以回傳一段錯誤文字。
+回傳 Null 值或 true 值來表示你的認證已被通過測試。
+以下有一個簡單的例子:
+
+```php
+public function validate($value, $mode, $field)
+{
+    if ($value != 'the value we want')
+    {
+        return 'The '.$field->field_name.' field needs to be the value we want!';
+    }
+
+    return true;
+}
+```
+
+請記住，你仍然可以存取所有的 __$_POST__ 變數，所以如果你需要抓取 row ID，你可以從 phone data 中使用 __row_edit_id__ 。
+
+```php
+$this->CI->input->post('row_edit_id');
+```
+
+#### Working With File Uploads 檔案上傳工作
+某些 Field type 是檔案相關 ( 例如圖片檔案模式 )。
+當建立一個 Field Type 是檔案相關的，請務必增加一個類別變數；命名為 __input_is_file__ 並且設定它為 __true__ 。
+```php
+public $input_is_file = true;
+```
+這將會確保必填欄位一切工作正常。因為它需要去檢查 __$_FILE__ 變數，而不是 __$_POST__ 。
+
+#### CSS/JS Files
+很多時候你需要在你的 Field type 使用另外的東西。
+這可能是一個 CSS 檔案或是一個 View。
+PyroStreams 設定允許你可以去拉取這些檔案，無需去猜測你的 Field type 在檔案系統的哪裡。
+
+如果你想要增加 CSS 或 JavaScript 在 PyroCMS 的後端，
+你可以把它們輸入一個 CSS 或 JS 資料夾中的 field type 裡，並且透過函式 event() 來新增它們
+
+```php
+public function event()
+{
+    $this->CI->type->add_css('email', 'example.css'));
+    $this->CI->type->add_js('email', 'example.js'));
+}
+```
+上面的程式碼將會把 example.css 和 example.js 檔案新增到 Email Field type 的管理區域裡。
+
+#### Using View Files 使用 View 檔案
+如果你想從你的 Field Type 載入一個 view 檔案，建立一個 views 資料夾在你的 field type 資料夾，然後把你的 view 檔案放進去。
+你可以皹這樣呼叫你的 view 檔案:
+```php
+$this->CI->type->load_view('field_type_slug', 'view_file', $data, true);
+```
+第一個參數，它應該是 field type slug，接下來三個參數就跟 CodeIgniter 裡的 __$this->load->view()__ 函式一樣。
+
+#### Field AJAX Functions
+
+
 
 
 ### Methods
