@@ -215,8 +215,20 @@ $this->CI->type->load_view('field_type_slug', 'view_file', $data, true);
 第一個參數，它應該是 field type slug，接下來三個參數就跟 CodeIgniter 裡的 __$this->load->view()__ 函式一樣。
 
 #### Field AJAX Functions
-
-
+如果你需要讓你的 Field Type 可以存取 AJAX 函式，你可以建立一個前綴字為 __ajax___ 的函式在你的 Field Type 裡。
+```php
+public function ajax_myfunction()
+{
+    // AJAX functionality here.
+}
+```
+然後你可以透過這個 URL 存取這個函式
+```
+http://example.com/streams_core/public_ajax/field/[field_type_slug]/myfunction
+```
+請注意，這些函式是公開存取的，所以如果你需要去自己檢查資料。(例如: 檢查已登入的 user )
+原因是，這些 AJAX 函式是被持續公開的，我們無法預測 Field type 在哪裡被使用。
+它可能在公用的或是私人的函式。
 
 
 ### Methods
