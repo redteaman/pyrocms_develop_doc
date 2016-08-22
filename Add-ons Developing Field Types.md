@@ -232,3 +232,70 @@ http://example.com/streams_core/public_ajax/field/[field_type_slug]/myfunction
 
 
 ### Methods
+The following methods can be placed in your field type file and will be run by PyroStreams at various times.
+下面的 Methods 可以被放在你的 Field Type 檔案裡，並將由 PyroStreams 在不同時間下運作。
+只有一個真正必需具備的 Method 是 form_output，其他的都是可選擇的。
+* Basic Data Formatting 基本資料格式
+* Alternative Formatting 替代格式
+* Constructs/Destructs 建構及解構
+
+#### Basic Data Formatting 基本資料格式
+The following functions are available for data formatting and saving and make up the core of what you can do with PyroStreams field types.
+以下的函式可用於資料格式、儲存及構成你在 PyroStreams Field Types 可以做什麼的核心。
+##### form_output($data, $entry_id, $field)
+這是唯一一個必須加入的 Method。它應該會回傳欄位表單輸出。它有以下的參數:
+
+|Parameter|Type|Description|
+|:------:|:-----|:-----|
+|data|array|An array of data on the field.|
+|entry_id|int|The current entry id. This is null if not being used in an editing entry context.|
+|field|object|Object of field data.|
+
+__$data__ 參數包含了以下的值:
+
+|Parameter|Description|
+|:------:|:-----|
+|form_slug|The slug of the form input. Usually is used as the "name" attribute.|
+|value|The current value of the input. Left blank if there is no value.|
+|custom|Contains an associative array of the custom parameter values for your field. IE: max_length.|
+
+例如:
+```php
+public function form_output($data)
+{
+    $options['name']  = $data['form_slug'];
+    $options['id']    = $data['form_slug'];
+    $options['value'] = $data['value'];
+
+    return form_input($options);
+}
+```
+
+#### pre_output($input, $data)
+當資料需要單一顯示時，你可以使用這個 plugin 來達成。
+例如，在加密的field type， __pre_output__ 函式在顯示前被用來解密資料用。
+如果你使用 __pre_output_plugin__ 函式(見下文)在 plugin 環境下來取得多個變數去使用，
+你可以使用 __pre_output__ 來返回既有的顯示來取代沒有被變數選擇機會的 display。
+例如，在日期/時間的 Field type， __pre_output__ 函式格式化了依據網站的日期格式設定的日期。
+
+這個 Plugin 使用了以下參數:
+
+|Parameter|Description|
+|:------:|:-----|
+|input|The value stored in the database. A string.|
+|data|An associative array of the custom parameter values for your field. IE: max_length.|
+
+例如:
+```php
+public function pre_output($input)
+{
+    $this->CI->load->library('encrypt');
+
+    return $this->CI->encrypt->decode($input);
+}
+```
+  當有一個 plugin 正在被使用，如果 __pre_output-plugin__ 存在，該 method 將會被 __pre_output-plugin__ method 所取代。
+
+#### pre_output_plugin($input, $params, $row_slug)
+
+ 
